@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: evidenceflow
+      POSTGRES_USER: evidenceflow
+      POSTGRES_PASSWORD: evidenceflow
+    volumes:
+      - database:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evidenceflow -d evidenceflow"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://evidenceflow:evidenceflow@db:5432/evidenceflow
+      APP_ORIGIN: http://localhost:${EVIDENCEFLOW_PORT:-8080}
+      COOKIE_SECURE: "false"
+      STORAGE_BACKEND: local
+      STORAGE_DIR: /srv/evidenceflow/data/objects
+      WORKER_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${EVIDENCEFLOW_PORT:-8080}:8080"
+    volumes:
+      - objects:/srv/evidenceflow/data
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8080/healthz', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  database:
+  objects:

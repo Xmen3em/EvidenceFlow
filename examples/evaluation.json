@@ -1,0 +1,362 @@
+{
+  "dataset": "evidenceflow-synthetic-v1",
+  "documents": {
+    "PO-042-po.txt": {
+      "kind": "po",
+      "fields": [
+        [
+          "supplier",
+          "Northline Industrial"
+        ],
+        [
+          "po_ref",
+          "PO-042"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "1200.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "CMP-KIT",
+            "qty": 12
+          }
+        ]
+      ]
+    },
+    "PO-042-invoice.txt": {
+      "kind": "invoice",
+      "fields": [
+        [
+          "supplier",
+          "Northline Industrial"
+        ],
+        [
+          "po_ref",
+          "PO-042"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "1320.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "CMP-KIT",
+            "qty": 12
+          }
+        ]
+      ]
+    },
+    "PO-042-receipt.txt": {
+      "kind": "receipt",
+      "fields": [
+        [
+          "supplier",
+          "Northline Industrial"
+        ],
+        [
+          "po_ref",
+          "PO-042"
+        ],
+        [
+          "item",
+          {
+            "sku": "CMP-KIT",
+            "qty": 10
+          }
+        ]
+      ]
+    },
+    "ocr/northline-invoice.pdf": {
+      "kind": "invoice",
+      "scan": true,
+      "fields": [
+        [
+          "supplier",
+          "Northline Industrial"
+        ],
+        [
+          "po_ref",
+          "PO-042"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "1320.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "CMP-KIT",
+            "qty": 12
+          }
+        ]
+      ]
+    },
+    "ocr/northline-receipt.pdf": {
+      "kind": "receipt",
+      "scan": true,
+      "fields": [
+        [
+          "supplier",
+          "Northline Industrial"
+        ],
+        [
+          "po_ref",
+          "PO-042"
+        ],
+        [
+          "item",
+          {
+            "sku": "CMP-KIT",
+            "qty": 10
+          }
+        ]
+      ]
+    },
+    "PO-088-po.txt": {
+      "kind": "po",
+      "fields": [
+        [
+          "supplier",
+          "Harbor Safety"
+        ],
+        [
+          "po_ref",
+          "PO-088"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "480.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "GLOVE-XL",
+            "qty": 24
+          }
+        ]
+      ]
+    },
+    "PO-088-invoice.txt": {
+      "kind": "invoice",
+      "fields": [
+        [
+          "supplier",
+          "Harbor Safety"
+        ],
+        [
+          "po_ref",
+          "PO-088"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "480.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "GLOVE-XL",
+            "qty": 24
+          }
+        ]
+      ]
+    },
+    "eval-harbor-receipt.txt": {
+      "kind": "receipt",
+      "fields": [
+        [
+          "supplier",
+          "Harbor Safety"
+        ],
+        [
+          "po_ref",
+          "PO-088"
+        ],
+        [
+          "item",
+          {
+            "sku": "GLOVE-XL",
+            "qty": 24
+          }
+        ]
+      ]
+    },
+    "eval-harbor-ambiguous-invoice.txt": {
+      "kind": "invoice",
+      "fields": [
+        [
+          "supplier",
+          "Harbor Safety"
+        ],
+        [
+          "po_ref",
+          "PO-088"
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "480.00"
+          }
+        ],
+        [
+          "total",
+          {
+            "currency": "USD",
+            "amount": "495.00"
+          }
+        ],
+        [
+          "item",
+          {
+            "sku": "GLOVE-XL",
+            "qty": 24
+          }
+        ]
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "northline-text-discrepancies",
+      "documents": [
+        "PO-042-po.txt",
+        "PO-042-invoice.txt",
+        "PO-042-receipt.txt"
+      ],
+      "state": "differences_found",
+      "findings": {
+        "total_differs": [
+          [
+            "PO-042-po.txt",
+            1,
+            "Total: USD 1,200.00"
+          ],
+          [
+            "PO-042-invoice.txt",
+            1,
+            "Total: USD 1,320.00"
+          ]
+        ],
+        "quantity_differs_CMP-KIT": [
+          [
+            "PO-042-po.txt",
+            1,
+            "Item: CMP-KIT | 12"
+          ],
+          [
+            "PO-042-invoice.txt",
+            1,
+            "Item: CMP-KIT | 12"
+          ],
+          [
+            "PO-042-receipt.txt",
+            1,
+            "Item: CMP-KIT | 10"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "northline-scanned-discrepancies",
+      "documents": [
+        "PO-042-po.txt",
+        "ocr/northline-invoice.pdf",
+        "ocr/northline-receipt.pdf"
+      ],
+      "state": "differences_found",
+      "findings": {
+        "total_differs": [
+          [
+            "PO-042-po.txt",
+            1,
+            "Total: USD 1,200.00"
+          ],
+          [
+            "ocr/northline-invoice.pdf",
+            2,
+            "Total: USD 1320.00"
+          ]
+        ],
+        "quantity_differs_CMP-KIT": [
+          [
+            "PO-042-po.txt",
+            1,
+            "Item: CMP-KIT | 12"
+          ],
+          [
+            "ocr/northline-invoice.pdf",
+            2,
+            "Item: CMP-KIT | 12"
+          ],
+          [
+            "ocr/northline-receipt.pdf",
+            1,
+            "Item: CMP-KIT | 10"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "harbor-missing-receipt",
+      "documents": [
+        "PO-088-po.txt",
+        "PO-088-invoice.txt"
+      ],
+      "state": "needs_evidence",
+      "findings": {
+        "missing_receipt": []
+      }
+    },
+    {
+      "id": "harbor-supported-fields-agree",
+      "documents": [
+        "PO-088-po.txt",
+        "PO-088-invoice.txt",
+        "eval-harbor-receipt.txt"
+      ],
+      "state": "ready_for_review",
+      "findings": {}
+    },
+    {
+      "id": "harbor-ambiguous-total",
+      "documents": [
+        "PO-088-po.txt",
+        "eval-harbor-ambiguous-invoice.txt",
+        "eval-harbor-receipt.txt"
+      ],
+      "state": "needs_evidence",
+      "findings": {
+        "total_invoice_ambiguous": [
+          [
+            "eval-harbor-ambiguous-invoice.txt",
+            1,
+            "Total: USD 480.00"
+          ],
+          [
+            "eval-harbor-ambiguous-invoice.txt",
+            1,
+            "Total: USD 495.00"
+          ]
+        ]
+      }
+    }
+  ]
+}

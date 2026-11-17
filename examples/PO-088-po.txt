@@ -1,0 +1,5 @@
+Synthetic purchase order
+Supplier: Harbor Safety
+PO Number: PO-088
+Total: USD 480.00
+Item: GLOVE-XL | 24

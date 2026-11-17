@@ -1,0 +1,5 @@
+Synthetic invoice INV-418
+Supplier: Northline Industrial
+PO Ref: PO-042
+Total: USD 1,320.00
+Item: CMP-KIT | 12

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18262b">
+  <title>EvidenceFlow · Procurement Review</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" type="module"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div id="notice" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <main id="auth" class="auth" hidden>
+    <div class="auth-story">
+      <div class="wordmark"><span class="brand-icon" aria-hidden="true">≋</span> EvidenceFlow</div>
+      <div>
+        <p class="kicker">Procurement evidence workspace</p>
+        <h1>See where the<br>paperwork diverges.</h1>
+        <p class="intro">Bring the purchase order, invoice and goods receipt together. Follow each discrepancy back to the source.</p>
+      </div>
+      <div class="sample" aria-label="Illustrative discrepancy from a synthetic case">
+        <div class="sample-top"><span>PO-042</span><span class="pill difference">Difference</span></div>
+        <strong>Invoice total differs</strong>
+        <div class="sample-row"><span>Purchase order</span><b>USD 1,200.00</b></div>
+        <div class="sample-row"><span>Invoice</span><b>USD 1,320.00</b></div>
+        <small>Illustrative evidence · page 1, line 4</small>
+      </div>
+    </div>
+    <div class="auth-form">
+      <form id="login">
+        <p class="kicker">Team access</p>
+        <h2>Open your workspace</h2>
+        <p class="muted">Sign in with the account your operator created.</p>
+        <label>Workspace slug<input name="workspace" placeholder="e.g. demo" required maxlength="50" autocomplete="organization"></label>
+        <label>Email<input type="email" name="email" required maxlength="254" autocomplete="username"></label>
+        <label>Password<input type="password" name="password" required maxlength="256" autocomplete="current-password"></label>
+        <button class="primary full">Sign in</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </div>
+  </main>
+
+  <div id="workspace" class="shell" hidden>
+    <aside class="rail">
+      <div class="wordmark"><span class="brand-icon" aria-hidden="true">≋</span> EvidenceFlow</div>
+      <span class="rail-caption">Procurement workspace</span>
+      <nav aria-label="Workspace">
+        <button id="home-button" class="rail-button" type="button"><span aria-hidden="true">▤</span> Case register</button>
+      </nav>
+      <div id="rail-cases" class="rail-cases"></div>
+      <div class="identity">
+        <span id="identity-icon" aria-hidden="true" class="avatar"></span>
+        <div><strong id="identity-name"></strong><small id="identity-role"></small></div>
+        <button id="logout" class="sign-out" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main id="main" tabindex="-1">
+      <header class="topbar">
+        <span id="breadcrumb">Workspace / Case register</span>
+        <button id="new-case" class="primary compact" type="button">+ New case</button>
+      </header>
+      <div class="content">
+        <section id="register" aria-labelledby="register-title">
+          <div class="heading">
+            <p class="kicker">Case register</p>
+            <h1 id="register-title">Evidence workspace</h1>
+            <p class="muted">Collect documents, investigate discrepancies and record a reviewer’s decision.</p>
+          </div>
+          <div id="cases" class="case-grid"></div>
+        </section>
+
+        <section id="case-view" aria-labelledby="case-title" hidden>
+          <div class="heading case-heading">
+            <div>
+              <p id="case-ref" class="kicker"></p>
+              <h1 id="case-title"></h1>
+              <p id="case-revision" class="muted"></p>
+            </div>
+            <button id="add-doc" class="primary" type="button">+ Upload evidence</button>
+          </div>
+          <div id="metrics" class="metrics"></div>
+          <div id="case-tabs" class="tabs" aria-label="Case sections">
+            <button type="button" data-panel="findings" aria-pressed="true">Findings</button>
+            <button type="button" data-panel="documents" aria-pressed="false">Documents</button>
+            <button type="button" data-panel="review" aria-pressed="false">Review</button>
+            <button type="button" data-panel="activity" aria-pressed="false">Activity</button>
+            <button type="button" data-panel="mcp" aria-pressed="false">MCP lab</button>
+          </div>
+          <div id="findings" class="panel">
+            <div class="section-head"><div><h2>Evidence findings</h2><p class="muted">Preliminary review of supported fields. Open a citation to inspect its source.</p></div></div>
+            <div id="finding-list" class="findings"></div>
+            <form id="investigation" class="block assistant-card">
+              <p class="kicker">MCP investigation</p>
+              <h2>Explain these findings</h2>
+              <p class="muted">Trace a real MCP tool call in Activity. The offline report uses the local evidence rules.</p>
+              <label>Question <small>(optional for Hugging Face)</small><input name="question" maxlength="500" placeholder="What evidence should we verify first?"></label>
+              <div class="actions">
+                <button type="submit" name="mode" value="offline" class="secondary">Run offline</button>
+                <button id="hf-button" type="submit" name="mode" value="hugging_face" class="primary" hidden>Run with Hugging Face</button>
+              </div>
+              <label id="hf-consent" class="check" hidden><input type="checkbox" name="consent"> I can share these excerpts and this question with the configured inference provider.</label>
+              <div id="investigation-output" aria-live="polite"></div>
+            </form>
+          </div>
+          <div id="documents" class="panel" hidden>
+            <div class="section-head"><div><h2>Documents</h2><p class="muted">Extracted fields include page and line references.</p></div></div>
+            <div id="document-list"></div>
+          </div>
+          <div id="review" class="panel" hidden>
+            <div class="section-head"><div><h2>Review decisions</h2><p class="muted">A different reviewer must decide a proposal. The decision records a review disposition only.</p></div></div>
+            <div id="proposal-list"></div>
+            <form id="proposal" class="block">
+              <h3>Propose a disposition</h3>
+              <label>Disposition<select name="decision"><option value="follow_up">Request follow-up</option><option value="close_review">Close evidence review</option></select></label>
+              <label>Reason<textarea name="note" rows="3" required minlength="5" maxlength="500"></textarea></label>
+              <button class="primary">Submit for review</button>
+            </form>
+          </div>
+          <div id="activity" class="panel" hidden>
+            <div class="section-head"><div><h2>Activity</h2><p class="muted">Case events and MCP calls with actor and time.</p></div><button id="reload-activity" type="button" class="secondary">Refresh</button></div>
+            <div id="activity-list"></div>
+          </div>
+          <div id="mcp" class="panel" hidden>
+            <div class="section-head"><div><h2>MCP lab</h2><p class="muted">Explore Tools, Resources and Prompts for the selected case.</p></div></div>
+            <div class="block">
+              <h3>Connect a remote client</h3>
+              <p>A bearer token grants access to this case for one hour. Keep it private.</p>
+              <ol><li>Create a token.</li><li>Run the command from your project directory and paste the token when prompted.</li><li>Open Activity to see the evidence reads.</li></ol>
+              <pre id="mcp-command" tabindex="0"></pre>
+              <div class="actions">
+                <button id="create-grant" type="button" class="primary">Create token</button>
+                <button id="revoke-grants" type="button" class="secondary">Revoke my tokens</button>
+              </div>
+              <label id="grant-box" hidden>One-time display<input id="grant-value" type="text" readonly autocomplete="off" spellcheck="false"></label>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer>EvidenceFlow <span>Preliminary procurement review</span></footer>
+    </main>
+  </div>
+
+  <dialog id="case-dialog" aria-labelledby="new-title">
+    <form id="case-form">
+      <div class="dialog-head"><h2 id="new-title">New case</h2><button type="button" data-close aria-label="Close dialog">×</button></div>
+      <label>Case title<input name="title" required minlength="2" maxlength="120" placeholder="e.g. Replacement compressor kits"></label>
+      <label>Reference<input name="reference" required maxlength="48" placeholder="e.g. PO-042"></label>
+      <button class="primary full">Create case</button>
+    </form>
+  </dialog>
+
+  <dialog id="upload-dialog" aria-labelledby="upload-title">
+    <form id="upload-form">
+      <div class="dialog-head"><h2 id="upload-title">Upload evidence</h2><button type="button" data-close aria-label="Close dialog">×</button></div>
+      <p class="muted">Text or scanned PDFs and UTF-8 .txt files up to 5 MiB. Use a goods receipt showing delivered quantities.</p>
+      <label>Document type<select name="kind"><option value="po">Purchase order</option><option value="invoice">Invoice</option><option value="receipt">Goods receipt</option></select></label>
+      <label>File<input name="file" type="file" required accept=".txt,.pdf"></label>
+      <button class="primary full">Queue extraction</button>
+    </form>
+  </dialog>
+
+  <dialog id="source-dialog" class="source-dialog" aria-labelledby="source-title">
+    <div class="dialog-head"><h2 id="source-title">Review source</h2><button type="button" data-close aria-label="Close dialog">×</button></div>
+    <div id="source-detail"></div>
+    <img id="source-page" class="source-page" alt="" hidden>
+    <p id="source-preview-error" class="muted" role="status"></p>
+    <form id="correction-form" hidden>
+      <h3>Correct this field</h3>
+      <label>Corrected value<input name="value" required maxlength="220" aria-describedby="correction-format"></label>
+      <p id="correction-format" class="muted"></p>
+      <label>Reason for correction<textarea name="reason" rows="2" required minlength="5" maxlength="500"></textarea></label>
+      <button class="primary">Save correction</button>
+      <p id="correction-error" class="error" role="alert"></p>
+    </form>
+    <section id="correction-history" hidden aria-label="Correction history"></section>
+  </dialog>
+</body>
+</html>

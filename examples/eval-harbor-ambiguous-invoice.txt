@@ -1,0 +1,6 @@
+Synthetic invoice with two totals
+Supplier: Harbor Safety
+PO Ref: PO-088
+Total: USD 480.00
+Total: USD 495.00
+Item: GLOVE-XL | 24

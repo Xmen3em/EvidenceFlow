@@ -1,0 +1,4 @@
+Synthetic goods receipt
+Supplier: Harbor Safety
+PO Ref: PO-088
+Item: GLOVE-XL | 24

@@ -1,0 +1,42 @@
+name: Validate
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: evidenceflow
+          POSTGRES_PASSWORD: evidenceflow
+          POSTGRES_DB: evidenceflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U evidenceflow -d evidenceflow_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      TEST_DATABASE_URL: postgresql://evidenceflow:evidenceflow@127.0.0.1:5432/evidenceflow_test
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.11.7"
+      - run: uv sync --locked
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-eng
+      - run: uv run --locked ruff check app tests
+      - run: uv run --locked ruff format --check app tests
+      - run: node --check web/app.js
+      - run: uv run --locked python -m pytest -q
+      - run: uv run --locked python -m app.evaluate --check
+      - run: docker compose config --quiet
+      - run: docker build -t evidenceflow:ci .
+      - name: Audit locked runtime dependencies
+        run: |
+          uv export --locked --no-dev --no-emit-project --no-hashes -o /tmp/evidenceflow-runtime.txt
+          uv run --locked pip-audit --no-deps --disable-pip --strict -r /tmp/evidenceflow-runtime.txt
